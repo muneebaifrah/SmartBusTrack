@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartBusTrack - Login</title>
+    <!-- Google Sign-In API -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0B0E1A 0%, #1A1D2E 50%, #16213E 100%);
+            color: #E5E7EB;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .login-container {
+            max-width: 400px;
+            width: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(91, 33, 182, 0.5), transparent);
+        }
+
+        /* Logo Section */
+        .logo-section {
+            margin-bottom: 2rem;
+        }
+
+        .logo-gradient {
+            background: linear-gradient(135deg, #5B21B6, #1E40AF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 30px rgba(91, 33, 182, 0.6);
+        }
+
+        .app-name {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #F8FAFC, #CBD5E1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .app-tagline {
+            color: #94A3B8;
+            font-size: 1rem;
+            font-weight: 400;
+        }
+
+        /* Form Toggle */
+        .form-toggle {
+            display: flex;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            padding: 0.25rem;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 0.75rem;
+            background: none;
+            border: none;
+            color: #94A3B8;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: linear-gradient(135deg, #5B21B6, #1E40AF);
+            color: #F8FAFC;
+            box-shadow: 0 4px 15px rgba(91, 33, 182, 0.3);
+        }
+
+        /* Form Styles */
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-label {
+            display: block;
+            color: #F8FAFC;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 12px;
+            color: #F8FAFC;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input::placeholder {
+            color: #64748B;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #5B21B6;
+            box-shadow: 0 0 0 3px rgba(91, 33, 182, 0.1);
+            background: rgba(30, 41, 59, 0.7);
+        }
+
+        /* Button Styles */
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #5B21B6, #1E40AF);
+            border: none;
+            border-radius: 12px;
+            color: #F8FAFC;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .submit-btn:hover {
+            background: linear-gradient(135deg, #6D28D9, #2563EB);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(91, 33, 182, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Divider */
+        .divider {
+            position: relative;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(148, 163, 184, 0.2);
+        }
+
+        .divider-text {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 0 1rem;
+            color: #64748B;
+            font-size: 0.9rem;
+        }
+
+        /* Google Button */
+        .google-btn {
+            width: 100%;
+            padding: 1rem;
+            background: #FFFFFF;
+            border: 1px solid #DADCE0;
+            border-radius: 12px;
+            color: #3C4043;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .google-btn:hover {
+            background: #F8F9FA;
+            border-color: #C1C7CD;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .google-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Custom Google Sign-In Button Container */
+        .google-signin-container {
+            margin-bottom: 1rem;
+        }
+
+        #googleSignInButton {
+            width: 100% !important;
+            border-radius: 12px !important;
+        }
+
+        /* Forgot Password */
+        .forgot-password {
+            color: #5B21B6;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .forgot-password:hover {
+            color: #6D28D9;
+            text-decoration: underline;
+        }
+
+        /* Remember Me */
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: #5B21B6;
+        }
+
+        .checkbox-label {
+            color: #94A3B8;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: none;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #FFFFFF;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Success/Error Messages */
+        .message {
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .message.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10B981;
+        }
+
+        .message.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #EF4444;
+        }
+
+        /* User Profile Section */
+        .user-profile {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .user-profile.active {
+            display: block;
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            border: 3px solid #5B21B6;
+        }
+
+        .user-info h3 {
+            color: #F8FAFC;
+            margin-bottom: 0.5rem;
+        }
+
+        .user-info p {
+            color: #94A3B8;
+            margin-bottom: 1.5rem;
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #EF4444;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* Password Strength Indicator */
+        .password-strength {
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .strength-bar {
+            height: 4px;
+            background: rgba(148, 163, 184, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .strength-text {
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            color: #94A3B8;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 1.5rem;
+                margin: 0.5rem;
+            }
+
+            .logo-gradient {
+                font-size: 2.5rem;
+            }
+
+            .app-name {
+                font-size: 1.5rem;
+            }
+
+            .app-tagline {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Logo Section -->
+        <div class="logo-section">
+            <div class="logo-gradient">🚌</div>
+            <h1 class="app-name">SmartBusTrack</h1>
+            <p class="app-tagline">AI-Powered Bus Tracking & Navigation</p>
+        </div>
+
+        <!-- User Profile Section (shown after login) -->
+        <div id="userProfile" class="user-profile">
+            <img id="userAvatar" class="user-avatar" src="" alt="User Avatar">
+            <div class="user-info">
+                <h3 id="userName"></h3>
+                <p id="userEmail"></p>
+                <button class="logout-btn" onclick="signOut()">Sign Out</button>
+            </div>
+        </div>
+
+        <!-- Auth Forms (shown before login) -->
+        <div id="authSection">
+            <!-- Form Toggle -->
+            <div class="form-toggle">
+                <button class="toggle-btn active" onclick="switchForm('login')">Login</button>
+                <button class="toggle-btn" onclick="switchForm('signup')">Sign Up</button>
+            </div>
+
+            <!-- Messages -->
+            <div id="message" class="message"></div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form active">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" placeholder="Enter your email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" placeholder="Enter your password" required>
+                </div>
+
+                <div class="remember-me">
+                    <input type="checkbox" id="rememberMe" class="checkbox">
+                    <label for="rememberMe" class="checkbox-label">Remember me</label>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    Sign In
+                    <div class="loading" id="loginLoading">
+                        <div class="spinner"></div>
+                    </div>
+                </button>
+
+                <div style="text-align: center;">
+                    <a href="#" class="forgot-password">Forgot your password?</a>
+                </div>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signupForm" class="auth-form">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input" placeholder="Enter your full name" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" placeholder="Enter your email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" placeholder="Create a password" required>
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="strength-bar">
+                            <div class="strength-fill" id="strengthFill"></div>
+                        </div>
+                        <div class="strength-text" id="strengthText"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Confirm Password</label>
+                    <input type="password" class="form-input" placeholder="Confirm your password" required>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    Create Account
+                    <div class="loading" id="signupLoading">
+                        <div class="spinner"></div>
+                    </div>
+                </button>
+            </form>
+
+            <!-- Divider -->
+            <div class="divider">
+                <span class="divider-text">or continue with</span>
+            </div>
+
+            <!-- Google Sign-In Button -->
+            <div class="google-signin-container">
+                <div id="g_id_onload"
+                     data-client_id="http://369606428692-tm3pt87sphudg2h0fkqiuvmi9mdjpl52.apps.googleusercontent.com"
+                     data-context="signin"
+                     data-ux_mode="popup"
+                     data-callback="handleCredentialResponse"
+                     data-auto_prompt="false">
+                </div>
+                <div class="g_id_signin"
+                     data-type="standard"
+                     data-shape="rectangular"
+                     data-theme="outline"
+                     data-text="continue_with"
+                     data-size="large"
+                     data-logo_alignment="left"
+                     data-width="100%">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const CONFIG = {
+            // Replace with your actual Google Client ID
+            GOOGLE_CLIENT_ID: 'http://369606428692-tm3pt87sphudg2h0fkqiuvmi9mdjpl52.apps.googleusercontent.com.apps.googleusercontent.com',
+            // Replace with your backend API endpoints
+            API_BASE_URL: 'https://your-api-domain.com/api',
+            // Local storage keys
+            STORAGE_KEYS: {
+                ACCESS_TOKEN: 'smartbus_access_token',
+                USER_DATA: 'smartbus_user_data'
+            }
+        };
+
+        // Global variables
+        let currentUser = null;
+
+        // Initialize Google Sign-In
+        window.onload = function() {
+            // Check if user is already logged in
+            checkExistingAuth();
+            
+            // Initialize Google Sign-In
+            initializeGoogleSignIn();
+        };
+
+        function initializeGoogleSignIn() {
+            // Update the Google Client ID in the HTML
+            const onloadDiv = document.getElementById('g_id_onload');
+            onloadDiv.setAttribute('data-client_id', 369606428692-tm3pt87sphudg2h0fkqiuvmi9mdjpl52.apps.googleusercontent.com);
+        }
+
+        // Handle Google Sign-In Response
+        function handleCredentialResponse(response) {
+            console.log('Google Sign-In Response:', response);
+            
+            try {
+                // Decode the JWT token to get user info
+                const userInfo = parseJwt(response.credential);
+                console.log('User Info:', userInfo);
+                
+                // Send the credential to your backend for verification
+                authenticateWithBackend(response.credential, userInfo);
+                
+            } catch (error) {
+                console.error('Error handling Google sign-in:', error);
+                showMessage('Google sign-in failed. Please try again.', 'error');
+            }
+        }
+
+        // Parse JWT token
+        function parseJwt(token) {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
+
+        // Authenticate with your backend
+        async function authenticateWithBackend(credential, userInfo) {
+            showMessage('Authenticating with Google...', 'success');
+            
+            try {
+                // This is where you'd send the credential to your backend
+                // For demo purposes, we'll simulate the process
+                const response = await simulateBackendAuth(credential, userInfo);
+                
+                if (response.success) {
+                    // Store authentication data
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.ACCESS_TOKEN, response.accessToken);
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.USER_DATA, JSON.stringify(response.user));
+                    
+                    // Update UI
+                    showUserProfile(response.user);
+                    showMessage('Successfully signed in with Google!', 'success');
+                    
+                    // Hide auth section after delay
+                    setTimeout(() => {
+                        document.getElementById('authSection').style.display = 'none';
+                    }, 2000);
+                } else {
+                    throw new Error(response.error || 'Authentication failed');
+                }
+                
+            } catch (error) {
+                console.error('Backend authentication error:', error);
+                showMessage('Authentication failed. Please try again.', 'error');
+            }
+        }
+
+        // Simulate backend authentication (replace with real API call)
+        async function simulateBackendAuth(credential, userInfo) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    // Simulate successful authentication
+                    resolve({
+                        success: true,
+                        accessToken: 'demo_access_token_' + Date.now(),
+                        user: {
+                            id: userInfo.sub,
+                            name: userInfo.name,
+                            email: userInfo.email,
+                            picture: userInfo.picture,
+                            provider: 'google'
+                        }
+                    });
+                }, 1500);
+            });
+        }
+
+        // Check for existing authentication
+        function checkExistingAuth() {
+            const accessToken = localStorage.getItem(CONFIG.STORAGE_KEYS.ACCESS_TOKEN);
+            const userData = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_DATA);
+            
+            if (accessToken && userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    showUserProfile(user);
+                    document.getElementById('authSection').style.display = 'none';
+                } catch (error) {
+                    console.error('Error loading stored user data:', error);
+                    // Clear invalid data
+                    localStorage.removeItem(CONFIG.STORAGE_KEYS.ACCESS_TOKEN);
+                    localStorage.removeItem(CONFIG.STORAGE_KEYS.USER_DATA);
+                }
+            }
+        }
+
+        // Show user profile
+        function showUserProfile(user) {
+            currentUser = user;
+            
+            document.getElementById('userName').textContent = user.name;
+            document.getElementById('userEmail').textContent = user.email;
+            document.getElementById('userAvatar').src = user.picture || '/api/placeholder/80/80';
+            
+            document.getElementById('userProfile').classList.add('active');
+        }
+
+        // Sign out function
+        function signOut() {
+            // Clear local storage
+            localStorage.removeItem(CONFIG.STORAGE_KEYS.ACCESS_TOKEN);
+            localStorage.removeItem(CONFIG.STORAGE_KEYS.USER_DATA);
+            
+            // Reset UI
+            document.getElementById('userProfile').classList.remove('active');
+            document.getElementById('authSection').style.display = 'block';
+            
+            // Sign out from Google
+            if (window.google) {
+                google.accounts.id.disableAutoSelect();
+            }
+            
+            currentUser = null;
+            showMessage('Successfully signed out.', 'success');
+        }
+
+        // Form switching functionality
+        function switchForm(formType) {
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+            const toggleBtns = document.querySelectorAll('.toggle-btn');
+            
+            // Remove active class from all buttons
+            toggleBtns.forEach(btn => btn.classList.remove('active'));
+            
+            if (formType === 'login') {
+                loginForm.classList.add('active');
+                signupForm.classList.remove('active');
+                toggleBtns[0].classList.add('active');
+            } else {
+                signupForm.classList.add('active');
+                loginForm.classList.remove('active');
+                toggleBtns[1].classList.add('active');
+            }
+            
+            // Clear any messages
+            hideMessage();
+        }
+
+        // Message display functions
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `message ${type}`;
+            messageEl.style.display = 'block';
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                hideMessage();
+            }, 5000);
+        }
+
+        function hideMessage() {
+            const messageEl = document.getElementById('message');
+            messageEl.style.display = 'none';
+        }
+
+        // Traditional form submission handlers
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const loadingEl = document.getElementById('loginLoading');
+            const submitBtn = e.target.querySelector('.submit-btn');
+            const formData = new FormData(e.target);
+            
+            // Show loading
+            loadingEl.style.display = 'inline-block';
+            submitBtn.disabled = true;
+            
+            try {
+                // Simulate traditional login
+                const response = await simulateTraditionalAuth('login', {
+                    email: formData.get('email') || e.target.querySelector('input[type="email"]').value,
+                    password: e.target.querySelector('input[type="password"]').value
+                });
+                
+                if (response.success) {
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.ACCESS_TOKEN, response.accessToken);
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.USER_DATA, JSON.stringify(response.user));
+                    
+                    showUserProfile(response.user);
+                    showMessage('Login successful!', 'success');
+                    
+                    setTimeout(() => {
+                        document.getElementById('authSection').style.display = 'none';
+                    }, 2000);
+                } else {
+                    throw new Error(response.error || 'Login failed');
+                }
+                
+            } catch (error) {
+                showMessage(error.message || 'Login failed. Please try again.', 'error');
+            } finally {
+                loadingEl.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        });
+
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const loadingEl = document.getElementById('signupLoading');
+            const submitBtn = e.target.querySelector('.submit-btn');
+            const inputs = e.target.querySelectorAll('input');
+            
+            // Get form data
+            const formData = {
+                name: inputs[0].value,
+                email: inputs[1].value,
+                password: inputs[2].value,
+                confirmPassword: inputs[3].value
+            };
+            
+            // Validate passwords match
+            if (formData.password !== formData.confirmPassword) {
+                showMessage('Passwords do not match!', 'error');
+                return;
+            }
+            
+            // Show loading
+            loadingEl.style.display = 'inline-block';
+            submitBtn.disabled = true;
+            
+            try {
+                const response = await simulateTraditionalAuth('signup', formData);
+                
+                if (response.success) {
+                    showMessage('Account created successfully!', 'success');
+                    
+                    // Switch to login form after success
+                    setTimeout(() => {
+                        switchForm('login');
+                    }, 2000);
+                } else {
+                    throw new Error(response.error || 'Signup failed');
+                }
+                
+            } catch (error) {
+                showMessage(error.message || 'Signup failed. Please try again.', 'error');
+            } finally {
+                loadingEl.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Simulate traditional authentication
+        async function simulateTraditionalAuth(type, data) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    // Simulate validation
+                    if (type === 'login') {
+                        if (data.email && data.password) {
+                            resolve({
+                                success: true,
+                                accessToken: 'demo_access_token_' + Date.now(),
+                                user: {
+                                    id: 'demo_user_' + Date.now(),
+                                    name: data.email.split('@')[0],
+                                    email: data.email,
+                                    picture: 'https://ui-avatars.com/api/?name=' + encodeURIComponent(data.email.split('@')[0]),
+                                    provider: 'traditional'
+                                }
+                            });
+                        } else {
+                            reject(new Error('Invalid credentials'));
+                        }
+                    } else if (type === 'signup') {
+                        if (data.name && data.email && data.password) {
+                            resolve({
+                                success: true,
+                                message: 'Account created successfully'
+                            });
+                        } else {
+                            reject(new Error('Please fill in all fields'));
+                        }
+                    }
+                }, 1500);
+            });
+        }
+
+        // Password strength checker
+        const signupPasswordInput = document.querySelector('#signupForm input[type="password"]');
+        if (signupPasswordInput) {
+            signupPasswordInput.addEventListener('input', function() {
+                const strength = calculatePasswordStrength(this.value);
+                updatePasswordStrength(strength, this.value);
+            });
+
+            signupPasswordInput.addEventListener('focus', function() {
+                document.getElementById('passwordStrength').style.display = 'block';
+            });
+        }
+
+        function calculatePasswordStrength(password) {
+            let strength = 0;
+            const checks = {
+                length: password.length >= 8,
+                lowercase: /[a-z]/.test(password),
+                uppercase: /[A-Z]/.test(password),
+                numbers: /[0-9]/.test(password),
+                symbols: /[^A-Za-z0-9]/.test(password)
+            };
+            
+            strength = Object.values(checks).filter(Boolean).length;
+            return { strength, checks };
+        }
+
+        function updatePasswordStrength(result, password) {
+            const strengthFill = document.getElementById('strengthFill');
+            const strengthText = document.getElementById('strengthText');
+            
+            const colors = ['#EF4444', '#F59E0B', '#EAB308', '#22C55E', '#10B981'];
+            const labels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
+            
+            const percentage = (result.strength / 5) * 100;
+            strengthFill.style.width = percentage + '%';
+            strengthFill.style.backgroundColor = colors[result.strength - 1] || colors[0];
+            
+            if (password.length > 0) {
+                strengthText.textContent = labels[result.strength - 1] || labels[0];
+            } else {
+                strengthText.textContent = '';
+                strengthFill.style.width = '0%';
+            }
+        }
+
+        // Enhanced form validation
+        const inputs = document.querySelectorAll('.form-input');
+        inputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.required && !this.value.trim()) {
+                    this.style.borderColor = '#EF4444';
+                } else {
+                    this.style.borderColor = 'rgba(148, 163, 184, 0.2)';
+                }
+            });
+
+            input.addEventListener('input', function() {
+                if (this.style.borderColor === 'rgb(239, 68, 68)') {
+                    this.style.borderColor = 'rgba(148, 163, 184, 0.2)';
+                }
+            });
+        });
+
+        // API Integration Functions
+        class SmartBusAPI {
+            constructor(baseURL, clientId) {
+                this.baseURL = baseURL;
+                this.clientId = clientId;
+            }
+
+            // Register user with traditional signup
+            async registerUser(userData) {
+                try {
+                    const response = await fetch(`${this.baseURL}/auth/register`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(userData)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    return await response.json();
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    throw error;
+                }
+            }
+
+            // Login user with traditional credentials
+            async loginUser(credentials) {
+                try {
+                    const response = await fetch(`${this.baseURL}/auth/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(credentials)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    return await response.json();
+                } catch (error) {
+                    console.error('Login error:', error);
+                    throw error;
+                }
+            }
+
+            // Verify Google OAuth token
+            async verifyGoogleToken(idToken) {
+                try {
+                    const response = await fetch(`${this.baseURL}/auth/google`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ 
+                            idToken: idToken,
+                            clientId: this.clientId 
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    return await response.json();
+                } catch (error) {
+                    console.error('Google verification error:', error);
+                    throw error;
+                }
+            }
+
+            // Refresh access token
+            async refreshToken(refreshToken) {
+                try {
+                    const response = await fetch(`${this.baseURL}/auth/refresh`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ refreshToken })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    return await response.json();
+                } catch (error) {
+                    console.error('Token refresh error:', error);
+                    throw error;
+                }
+            }
+
+            // Logout user
+            async logoutUser(accessToken) {
+                try {
+                    const response = await fetch(`${this.baseURL}/auth/logout`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`,
+                            'Content-Type': 'application/json',
+                        }
+                    });
+
+                    return response.ok;
+                } catch (error) {
+                    console.error('Logout error:', error);
+                    return false;
+                }
+            }
+        }
+
+        // Initialize API client
+        const apiClient = new SmartBusAPI(CONFIG.API_BASE_URL, CONFIG.GOOGLE_CLIENT_ID);
+
+        // Real backend authentication function
+        async function authenticateWithRealBackend(credential, userInfo) {
+            showMessage('Verifying with Google...', 'success');
+            
+            try {
+                const response = await apiClient.verifyGoogleToken(credential);
+                
+                if (response.success) {
+                    // Store authentication data
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.ACCESS_TOKEN, response.accessToken);
+                    if (response.refreshToken) {
+                        localStorage.setItem('smartbus_refresh_token', response.refreshToken);
+                    }
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.USER_DATA, JSON.stringify(response.user));
+                    
+                    // Update UI
+                    showUserProfile(response.user);
+                    showMessage('Successfully signed in with Google!', 'success');
+                    
+                    // Hide auth section after delay
+                    setTimeout(() => {
+                        document.getElementById('authSection').style.display = 'none';
+                    }, 2000);
+                } else {
+                    throw new Error(response.error || 'Authentication failed');
+                }
+                
+            } catch (error) {
+                console.error('Backend authentication error:', error);
+                
+                // Fallback to demo mode if API is not available
+                if (error.message.includes('fetch')) {
+                    showMessage('API unavailable - running in demo mode', 'error');
+                    return authenticateWithBackend(credential, userInfo);
+                }
+                
+                showMessage('Authentication failed. Please try again.', 'error');
+            }
+        }
+
+        // Real traditional authentication
+        async function authenticateTraditionalReal(type, data) {
+            try {
+                let response;
+                
+                if (type === 'login') {
+                    response = await apiClient.loginUser({
+                        email: data.email,
+                        password: data.password
+                    });
+                } else if (type === 'signup') {
+                    response = await apiClient.registerUser({
+                        name: data.name,
+                        email: data.email,
+                        password: data.password
+                    });
+                }
+                
+                return response;
+                
+            } catch (error) {
+                console.error('Real authentication error:', error);
+                
+                // Fallback to demo mode if API is not available
+                if (error.message.includes('fetch')) {
+                    console.log('API unavailable - using demo mode');
+                    return simulateTraditionalAuth(type, data);
+                }
+                
+                throw error;
+            }
+        }
+
+        // Token refresh functionality
+        async function refreshAccessToken() {
+            const refreshToken = localStorage.getItem('smartbus_refresh_token');
+            if (!refreshToken) {
+                throw new Error('No refresh token available');
+            }
+
+            try {
+                const response = await apiClient.refreshToken(refreshToken);
+                
+                if (response.success) {
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.ACCESS_TOKEN, response.accessToken);
+                    if (response.refreshToken) {
+                        localStorage.setItem('smartbus_refresh_token', response.refreshToken);
+                    }
+                    return response.accessToken;
+                } else {
+                    throw new Error('Token refresh failed');
+                }
+            } catch (error) {
+                console.error('Token refresh error:', error);
+                // Clear invalid tokens
+                localStorage.removeItem(CONFIG.STORAGE_KEYS.ACCESS_TOKEN);
+                localStorage.removeItem('smartbus_refresh_token');
+                localStorage.removeItem(CONFIG.STORAGE_KEYS.USER_DATA);
+                throw error;
+            }
+        }
+
+        // Enhanced sign out with backend notification
+        async function signOutEnhanced() {
+            const accessToken = localStorage.getItem(CONFIG.STORAGE_KEYS.ACCESS_TOKEN);
+            
+            if (accessToken) {
+                try {
+                    await apiClient.logoutUser(accessToken);
+                } catch (error) {
+                    console.error('Backend logout error:', error);
+                }
+            }
+            
+            // Clear all stored data
+            localStorage.removeItem(CONFIG.STORAGE_KEYS.ACCESS_TOKEN);
+            localStorage.removeItem('smartbus_refresh_token');
+            localStorage.removeItem(CONFIG.STORAGE_KEYS.USER_DATA);
+            
+            // Reset UI
+            document.getElementById('userProfile').classList.remove('active');
+            document.getElementById('authSection').style.display = 'block';
+            
+            // Sign out from Google
+            if (window.google && window.google.accounts) {
+                google.accounts.id.disableAutoSelect();
+            }
+            
+            currentUser = null;
+            showMessage('Successfully signed out.', 'success');
+        }
+
+        // Update the signOut function to use enhanced version
+        function signOut() {
+            signOutEnhanced();
+        }
+
+        // Automatic token refresh
+        function setupTokenRefresh() {
+            const accessToken = localStorage.getItem(CONFIG.STORAGE_KEYS.ACCESS_TOKEN);
+            if (!accessToken) return;
+
+            // Try to refresh token every 50 minutes (assuming 1-hour expiry)
+            setInterval(async () => {
+                try {
+                    await refreshAccessToken();
+                    console.log('Access token refreshed automatically');
+                } catch (error) {
+                    console.error('Automatic token refresh failed:', error);
+                    // Force re-authentication
+                    signOut();
+                }
+            }, 50 * 60 * 1000); // 50 minutes
+        }
+
+        // Initialize token refresh on page load
+        if (localStorage.getItem(CONFIG.STORAGE_KEYS.ACCESS_TOKEN)) {
+            setupTokenRefresh();
+        }
+
+        // Network status handling
+        function handleNetworkStatus() {
+            window.addEventListener('online', () => {
+                showMessage('Connection restored', 'success');
+            });
+
+            window.addEventListener('offline', () => {
+                showMessage('You are offline - some features may not work', 'error');
+            });
+        }
+
+        // Initialize network status handling
+        handleNetworkStatus();
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Alt + L for login form
+            if (e.altKey && e.key === 'l') {
+                e.preventDefault();
+                switchForm('login');
+            }
+            
+            // Alt + S for signup form
+            if (e.altKey && e.key === 's') {
+                e.preventDefault();
+                switchForm('signup');
+            }
+            
+            // Escape to clear messages
+            if (e.key === 'Escape') {
+                hideMessage();
+            }
+        });
+
+        // Setup Instructions for Real Implementation
+        console.log(`
+🚀 SmartBusTrack Authentication Setup Instructions:
+
+1. Google OAuth Setup:
+   - Go to Google Cloud Console (https://console.cloud.google.com/)
+   - Create a new project or select existing one
+   - Enable Google+ API
+   - Create OAuth 2.0 Client ID
+   - Add your domain to authorized origins
+   - Replace 'YOUR_GOOGLE_CLIENT_ID' with your actual client ID
+
+2. Backend API Setup:
+   - Update CONFIG.API_BASE_URL with your backend URL
+   - Implement these endpoints:
+     * POST /api/auth/register - User registration
+     * POST /api/auth/login - User login
+     * POST /api/auth/google - Google OAuth verification
+     * POST /api/auth/refresh - Token refresh
+     * POST /api/auth/logout - User logout
+
+3. Database Setup:
+   - Create users table with fields: id, name, email, password_hash, provider, google_id, created_at, updated_at
+   - Create sessions/tokens table for managing access tokens
+
+4. Security Considerations:
+   - Use HTTPS in production
+   - Implement CSRF protection
+   - Add rate limiting
+   - Validate and sanitize all inputs
+   - Use secure password hashing (bcrypt)
+   - Implement proper JWT token management
+
+5. Environment Variables:
+   - GOOGLE_CLIENT_ID
+   - GOOGLE_CLIENT_SECRET
+   - JWT_SECRET
+   - DATABASE_URL
+   - API_BASE_URL
+
+Current Status: Running in DEMO MODE - Replace simulation functions with real API calls
+        `);
+    </script>
+</body>
+</html>
